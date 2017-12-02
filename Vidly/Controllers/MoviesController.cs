@@ -9,6 +9,7 @@ using System.Web.Mvc;
 
 namespace Vidly.Controllers
 {
+    
     public class MoviesController : Controller
     {
         private ApplicationDbContext _context;
@@ -23,10 +24,12 @@ namespace Vidly.Controllers
         }
         // GET: Movies
 
-        public ActionResult Index()
+        public ViewResult Index()
         {
-            var movies = _context.Movies.Include(c => c.Genre).ToList();
-            return View(movies);
+            if(User.IsInRole(RoleName.CanManageMovies))
+                return View("List");
+
+            return View("ReadOnlyList");
         }
 
         public ActionResult Details(int id)
@@ -35,6 +38,7 @@ namespace Vidly.Controllers
             return View(movie);
         }
 
+        [Authorize(Roles = RoleName.CanManageMovies)]
         public ActionResult New()
         {
             var genres = _context.Genres.ToList();
@@ -46,8 +50,20 @@ namespace Vidly.Controllers
             return View("MovieForm",viewModel);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "CanManageMovies")]
         public ActionResult Save(Movie movie)
         {
+            if (!ModelState.IsValid)
+            {
+                var viewModel = new NewMovieFormViewModel(movie)
+                {
+                    Genres = _context.Genres.ToList()
+                };
+                return View("MovieForm", viewModel);
+            }
+
             if (movie.Id == 0)
             {
                 movie.DateAdded = DateTime.Now;
@@ -66,16 +82,18 @@ namespace Vidly.Controllers
             return RedirectToAction("Index", "Movies");
         }
 
+        
+        [Authorize(Roles = "CanManageMovies")]
         public ActionResult Edit(int id)
         {
             var movie = _context.Movies.SingleOrDefault(c => c.Id == id);
             if (movie == null)
                 return HttpNotFound();
 
-            var viewModel = new NewMovieFormViewModel
+            var viewModel = new NewMovieFormViewModel(movie)
             {
-                Genres = _context.Genres.ToList(),
-                Movie=movie
+                
+                Genres = _context.Genres.ToList()
             };
 
             return View("MovieForm", viewModel);

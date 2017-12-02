@@ -23,10 +23,39 @@ textarea {
     max-width: 280px;
 }
 
-.field-validation-error{
+.field-validation-error,
+label.error{
     color: red;
 }
 
-.input-validation-error {
+.input-validation-error,
+input.error{
     border: 2px solid red;
 }
+
+
+
+.another-day-at-work .btn {
+    height: 100%;
+}
+
+.another-day-at-work div {
+    width: 80%;
+    margin: 0 auto;
+    padding: 6%;
+}
+
+
+.welcome-in-our-team div {
+    width: 80%;
+    margin: 0 auto;
+    padding: 6%;
+}
+
+.jumbotron{
+    background-color: rgba(255, 186, 21, 0.2);
+}
+
+
+
+
